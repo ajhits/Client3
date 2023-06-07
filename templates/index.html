@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Telegram</title>
+
+    <!-- CSS -->
+    <style>
+        #center{
+          text-align: center;
+          margin-top: 20px;
+        }
+        h1{
+          text-align: center;
+        }
+
+        #line {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background-color: red;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        /* design of return btn */
+        button {
+          background-color: #4CAF50;
+          color: #fff;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 3px;
+          cursor: pointer;
+          text-align: center; /* center the text inside the button */
+          margin: 0 auto; /* center the button itself */
+          display: block; /* make the button a block element */
+          display: flex;
+        }
+        .button-container {
+            display: flex; /* enable flexbox */
+            justify-content: center; /* center the buttons horizontally */
+        }
+        body{
+          background: white;
+        }
+        #center2 {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        #otp {
+          padding: 10px;
+          width: 200px;
+          margin-bottom: 10px;
+          text-align: center;
+        }
+     </style>
+</head>
+
+<body>
+    <h1 style="color:black;">TELEGRAM</h1>
+
+    <div class="button-container">
+        <div id="center">
+            <button style="display:inline-block; background:red;" onclick="sendOTP()" id="send">Send OTP</button>
+        </div>
+    </div>
+    <br><br><br>
+    <div id="center2">
+        <input id="otp" name="otp" placeholder="Enter OTP here">
+        <button style="display:inline-block; background:black;" onclick="verifyOTP()" id="verify">Verify OTP</button>
+    </div>
+
+    <p id="countdown" style="text-align:center;"></p>
+
+    <script>
+             var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
+      //chat id
+      var chat_id1 = 1246068387; // franzz
+      var chat_id2 = 1120054024; // AJ
+        var otpExpirationTime = 1 * 60; // OTP expiration time in seconds
+        var countdownInterval;
+
+        function generateOTP(length) {
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            var otp = '';
+            for (var i = 0; i < length; i++) {
+                var index = Math.floor(Math.random() * characters.length);
+                otp += characters.charAt(index);
+            }
+            return otp;
+        }
+
+        function startCountdown() {
+            var timeRemaining = otpExpirationTime;
+            countdownInterval = setInterval(function () {
+                var minutes = Math.floor(timeRemaining / 60);
+                var seconds = timeRemaining % 60;
+
+                var countdownText = "Wait until : " + minutes + "m " + seconds + "s" + " to resend OTP ";
+                document.getElementById("countdown").textContent = countdownText;
+                timeRemaining--;
+
+                if (timeRemaining < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").textContent = "OTP Expired";
+                }
+            }, 1000);
+        }
+
+        function sendOTP() {
+            var sendButton = document.getElementById("send");
+
+            // Disable the send button
+            sendButton.disabled = true;
+            sendButton.textContent = "Sending...";
+
+            var otp = generateOTP(6);
+            var message = "THE OTP IS " + otp;
+
+            var settings1 = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "cache-control": "no-cache"
+                },
+                "data": JSON.stringify({
+                    "chat_id": chat_id1,
+                    "text": message
+                })
+            };
+
+            var settings2 = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "cache-control": "no-cache"
+                },
+                "data": JSON.stringify({
+                    "chat_id": chat_id2,
+                    "text": message
+                })
+            };
+
+            // Save OTP to sessionStorage with expiration time
+            var expirationTime = new Date().getTime() + (otpExpirationTime * 1000);
+            var otpData = {
+                otp: otp,
+                expirationTime: expirationTime
+            };
+            sessionStorage.setItem('otp', JSON.stringify(otpData));
+
+            // Start the countdown
+            startCountdown();
+
+            $.ajax(settings1).done(function (response) {
+                console.log(response);
+            });
+
+            $.ajax(settings2).done(function (response) {
+                console.log(response);
+            });
+
+            // Update the button label after a delay of 3 seconds (simulating API call)
+            setTimeout(function () {
+                sendButton.textContent = "Resend OTP";
+                sendButton.disabled = false;
+            }, 3000);
+        }
+
+        function verifyOTP() {
+            var enteredOTP = $("#otp").val();
+            var otpData = JSON.parse(sessionStorage.getItem('otp'));
+
+            if (!otpData) {
+                console.log("No OTP available");
+                return;
+            }
+
+            var storedOTP = otpData.otp;
+            var expirationTime = otpData.expirationTime;
+            var currentTime = new Date().getTime();
+
+            if (enteredOTP === storedOTP) {
+                if (currentTime <= expirationTime) {
+                    console.log("OTP is valid");
+                    // Notify OTP is verified
+                    alert("OTP is verified");
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").textContent = "Welcome"; // Change the countdown message to "Welcome"
+                } else {
+                    console.log("OTP has expired");
+                    // Notify OTP has expired
+                    alert("OTP has expired");
+                }
+            } else {
+                console.log("OTP is invalid");
+            }
+        }
+    </script>
+</body>
+</html>
