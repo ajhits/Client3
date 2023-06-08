@@ -1,4 +1,6 @@
 import mysql.connector
+import json
+
 
 host = "localhost"
 user = "root"
@@ -6,42 +8,65 @@ password = ""
 database = "smart_ai_home_security"
 
 # Connection to the database
-data = mysql.connector.connect(host=host, user=user, password=password, database=database)
-cursor = data.cursor()  
+# data = mysql.connector.connect(host=host, user=user, password=password, database=database)
+# cursor = data.cursor()  
 
-# connection querry database 
-def __connectionCheck():
 
+# Connection query to the database
+def connection():
     try:
-
-    # Test connection
+        conn = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database
+        )
+        cursor = conn.cursor()
         cursor.execute("SELECT VERSION()")
         result = cursor.fetchone()
+        print(result)
 
-        if result:
-            print("connected to database")
-            print("MySQL Server version:", result[0])
-        else:
-            print("Connection failed!")
+        return conn
 
-        # Closing the connection
-        # cursor.close()
-        # data.close()
+    except mysql.connector.Error as err:
+        print("Error:", err)
+        return None
+
+    
+# def __connectionCheck():
+
+#     try:
+
+#     # Test connection
+#         cursor.execute("SELECT VERSION()")
+#         result = cursor.fetchone()
+
+#         if result:
+#             print("connected to database")
+#             print("MySQL Server version:", result[0])
+#         else:
+#             print("Connection failed!")
+
+#         # Closing the connection
+#         # cursor.close()
+#         # data.close()
         
-        return cursor
+#         return cursor
 
-    except mysql.connector.Error as error:
-        print("Error while connecting to MySQL:", error)
+#     except mysql.connector.Error as error:
+#         print("Error while connecting to MySQL:", error)
 
 
 # __connection()
 
-import mysql.connector
 
 # create data in History table
 def createHistory(images=None, name=None, time_in=None, date=None):
-
+    result = ""
     try:
+        conn = connection()
+        cursor = conn.cursor()
+        
         # Create the HISTORY table if it doesn't exist
         create_table_query = """
         CREATE TABLE IF NOT EXISTS HISTORY (
@@ -53,7 +78,7 @@ def createHistory(images=None, name=None, time_in=None, date=None):
         )
         """
         cursor.execute(create_table_query)
-        data.commit()
+        conn.commit()
 
         # Insert data into the HISTORY table
         insert_query = """
@@ -62,20 +87,27 @@ def createHistory(images=None, name=None, time_in=None, date=None):
         """
         query = (images, name, time_in, date)
         cursor.execute(insert_query, query)
-        data.commit()
+        conn.commit()
 
         print("Data inserted successfully!")
+        result = "Data inserted successfully!"
 
     except mysql.connector.Error as err:
         print("Error:", err)
+        result = str(err)
 
     # Close the cursor and connection
     cursor.close()
-    data.close()
+    conn.close()
+    
+    return result
 
-# read data from History table
+# Read data from History table
 def readHistory():
     try:
+        conn = connection()
+        cursor = conn.cursor()
+
         # Select all rows from the HISTORY table
         select_query = "SELECT * FROM HISTORY"
         cursor.execute(select_query)
@@ -83,68 +115,70 @@ def readHistory():
         # Fetch all rows from the result set
         rows = cursor.fetchall()
 
-        # Process the rows
+        # Define the column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        data_list = []
         for row in rows:
-            id = row[0]
-            images = row[1]
-            name = row[2]
-            time_in = row[3]
-            date = row[4]
+            # Create a dictionary with column names as keys and row values as values
+            row_data = dict(zip(column_names, row))
+            
+            # Add the dictionary to the list
+            data_list.append(row_data)
 
-            # Do something with the data
-            print(f"ID: {id}, Images: {images}, Name: {name}, Time In: {time_in}, Date: {date}")
+        cursor.close()
+        conn.close()
 
-    except mysql.connector.Error as err:
-        print("Error:", err)
-
-    # Close the cursor and connection
-    cursor.close()
-    data.close()
-
-
-# update data in History table
-def updateHistory(ID=None,Images=None, new_name=None, new_time_in=None, new_date=None):
-    try:
-        # Update the specified record in the HISTORY table
-        update_query = "UPDATE HISTORY SET person = %s, name = %s, time = %s, date = %s WHERE ID = %s"
-        query = (Images,new_name, new_time_in, new_date, ID)
-        cursor.execute(update_query, query)
-        data.commit()
-
-        if cursor.rowcount > 0:
-            print("Data updated successfully!")
-        else:
-            print("No matching record found.")
+        return json.dumps(data_list)
 
     except mysql.connector.Error as err:
         print("Error:", err)
-
-    # Close the cursor and connection
-    cursor.close()
-    data.close()
+        return None
 
 
-# delete data in History table
-def deleteHistory(ID):
+# # update data in History table
+# def updateHistory(ID=None,Images=None, new_name=None, new_time_in=None, new_date=None):
+#     try:
+#         # Update the specified record in the HISTORY table
+#         update_query = "UPDATE HISTORY SET person = %s, name = %s, time = %s, date = %s WHERE ID = %s"
+#         query = (Images,new_name, new_time_in, new_date, ID)
+#         cursor.execute(update_query, query)
+#         data.commit()
 
-    try:
-        # Delete the specified record from the HISTORY table
-        delete_query = "DELETE FROM HISTORY WHERE ID = %s"
-        query = (ID,)
-        cursor.execute(delete_query, query)
-        data.commit()
+#         if cursor.rowcount > 0:
+#             print("Data updated successfully!")
+#         else:
+#             print("No matching record found.")
 
-        if cursor.rowcount > 0:
-            print("Data deleted successfully!")
-        else:
-            print("No matching record found.")
+#     except mysql.connector.Error as err:
+#         print("Error:", err)
 
-    except mysql.connector.Error as err:
-        print("Error:", err)
+#     # Close the cursor and connection
+#     cursor.close()
+#     data.close()
 
-    # Close the cursor and connection
-    cursor.close()
-    data.close()
+
+# # delete data in History table
+# def deleteHistory(ID):
+    
+#     try:
+#         # Delete the specified record from the HISTORY table
+#         delete_query = "DELETE FROM HISTORY WHERE ID = %s"
+#         query = (ID,)
+#         cursor.execute(delete_query, query)
+#         data.commit()
+
+#         if cursor.rowcount > 0:
+#             print("Data deleted successfully!")
+#         else:
+#             print("No matching record found.")
+
+#     except mysql.connector.Error as err:
+#         print("Error:", err)
+
+#     # Close the cursor and connection
+#     cursor.close()
+#     data.close()
 
 
 # createHistory(
@@ -154,7 +188,9 @@ def deleteHistory(ID):
 #     date="June 8 2023"
 # )
 
-# readHistory()
+# history_data= readHistory()
+# print(history_data)
+
 
 # updateHistory(
 #     ID=1,
