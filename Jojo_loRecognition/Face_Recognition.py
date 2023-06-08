@@ -64,11 +64,13 @@ class Face_Recognition:
                     # threshold is the bias point number for accuracy
                     # in this if statment we set a threshold value of 0.6
                     # meaning all the result of comparing faces should atleast 0.6 value in order to recognize people
-                    print(min_dist)
+                    idx_min = match_list.index(min_dist)
+                    print(self.Name_List[idx_min], min_dist)
+                    
                     if min_dist < threshold:
                         
                         idx_min = match_list.index(min_dist)
-                    
+                        print(self.Name_List[idx_min], min_dist)
                         return (self.Name_List[idx_min], min_dist)
                     else:
                         return ('No match detected', None)
@@ -96,7 +98,7 @@ class Face_Recognition:
             label_names = {i: c for c, i in dataset.class_to_idx.items()}
 
         # load the dataset
-            loader = DataLoader(dataset,batch_size=20, collate_fn=collate_fn, pin_memory=True)
+            loader = DataLoader(dataset, collate_fn=collate_fn, pin_memory=True)
 
         # create empty lists for storing embeddings and names
             name_list = []

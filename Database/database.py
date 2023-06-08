@@ -1,6 +1,9 @@
 import mysql.connector
 import json
 
+from datetime import datetime
+
+
 
 host = "localhost"
 user = "root"
@@ -58,34 +61,66 @@ def connection():
 
 
 # __connection()
+# create data in Registerede table
 
-
-# create data in History table
-def createHistory(images=None, name=None, time_in=None, date=None):
+def createRegister(name=None,type=None):
     result = ""
     try:
         conn = connection()
         cursor = conn.cursor()
-        
-        # Create the HISTORY table if it doesn't exist
-        create_table_query = """
-        CREATE TABLE IF NOT EXISTS HISTORY (
-            ID INT AUTO_INCREMENT PRIMARY KEY,
-            Images LONGTEXT,
-            Name VARCHAR(255),
-            TimeIn VARCHAR(255),
-            Date VARCHAR(255)
-        )
-        """
-        cursor.execute(create_table_query)
-        conn.commit()
+    
 
         # Insert data into the HISTORY table
         insert_query = """
-        INSERT INTO HISTORY (person, name, time, date)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO `registered` (name, type)
+        VALUES (%s, %s)
         """
-        query = (images, name, time_in, date)
+        query = (name, type)
+        cursor.execute(insert_query, query)
+        conn.commit()
+
+        print("Data inserted successfully!")
+        result = "Data inserted successfully!"
+
+    except mysql.connector.Error as err:
+        print("Error:", err)
+        result = str(err)
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+    
+    return result
+
+
+
+
+# Print the formatted date and time
+# print(formatted_date)  # Example output: June 09 2023
+# print(formatted_time)  # Example output: 04:00PM
+# create data in History table
+def createHistory(name=None):
+    result = ""
+    # Get the current date and time
+    now = datetime.now()
+
+    # Format the date as "Month day year"
+    formatted_date = now.strftime("%B %d %Y")
+
+    # Format the time as "hour:minuteam/pm"
+    formatted_time = now.strftime("%I:%M%p")
+
+    try:
+        conn = connection()
+        cursor = conn.cursor()
+        
+
+        # Insert data into the HISTORY table
+        insert_query = """
+        INSERT INTO HISTORY (name, time, date)
+        VALUES (%s, %s, %s)
+        """
+        query = (name, formatted_time, formatted_date)
         cursor.execute(insert_query, query)
         conn.commit()
 
@@ -189,10 +224,7 @@ def deleteHistory(ID):
 
 
 # createHistory(
-#     images="Hello Friend",
-#     name="Elliot Alderson",
-#     time_in="3:00pm",
-#     date="June 8 2023"
+#     name="Hello Friend"
 # )
 
 # history_data= readHistory()
@@ -208,4 +240,9 @@ def deleteHistory(ID):
 # )
 
 # deleteHistory(7)
+
+# createRegister(name="AJ",type="Family")
+
+
+
 

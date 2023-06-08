@@ -1,5 +1,6 @@
-from flask import Flask, render_template, session
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, session
+from Database.database import createRegister,createHistory
+
 import cv2
 import time
 import os
@@ -68,9 +69,10 @@ def video_feed():
 
 # ------------------- Facial recognition Function
 Text = "Initializing"
+Name = ""
 def facialDetection(camera=None, face_detector=None):
-    global Text
-    
+    global Text,Name
+    Name=""
     Text=""
     B , G , R = (0,255,255)
 
@@ -121,6 +123,7 @@ def facialDetection(camera=None, face_detector=None):
                             Text = "Access Denied"
                     else:
                         B, G, R = (0, 255, 0)
+                        Name=response[0]
                         textResult = response[0]
                         Text = "Access Granted"
                     
@@ -234,9 +237,10 @@ def submit_family():
     if os.path.exists(path):
         return jsonify({'error': f"Folder {path} already exists"}), 400
     else:
-        os.makedirs(path)
-        # route to facial registration
-        return redirect(url_for('Finger_register'))
+        if createRegister(name=str(request.form.get('fullname')),type="Family") == "Data inserted successfully!":
+            os.makedirs(path)
+            # route to facial registration
+            return redirect(url_for('Finger_register'))
 
 @app.route('/submit_guest', methods=['POST'])
 def submit_guest():
@@ -252,9 +256,10 @@ def submit_guest():
     if os.path.exists(path):
         return jsonify({'error': f"Folder {path} already exists"}), 400
     else:
-        os.makedirs(path)
-        # route to facial registration
-        return redirect(url_for('Finger_register'))
+        if createRegister(name=str(request.form.get('fullname')),type="Guest") == "Data inserted successfully!":
+            os.makedirs(path)
+            # route to facial registration
+            return redirect(url_for('Finger_register'))
 
 # ------------------- Guest Name Register
 @app.route('/admin/Name_Guest')
@@ -356,8 +361,6 @@ def facialRegister(camera=None, face_detector=None, path=None):
 # ********************* API for Facial Register status
 @app.route("/update_variable", methods=["GET"])
 def update_variable():
-    # Replace this with the code that generates the new value of the variable
-    new_value = result
     return jsonify(result)
 
 
@@ -388,6 +391,14 @@ def facialTraining():
     #     return jsonify("Don't Interrupt Training Process")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ Database API
+
+# ********************* API for Facial Register status
+@app.route('/createHistoryS', methods=['GET'])
+def createHistoryS():
+    CHCH = createHistory(name=Name)
+    return jsonify({"message":CHCH})
+
+
 
 
 if __name__ == '__main__':

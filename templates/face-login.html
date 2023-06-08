@@ -94,6 +94,8 @@
     }
     
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
 
@@ -115,16 +117,69 @@
 
     
     <img id="webcam-feed" src="{{ url_for('video_feed') }}" />
+    <canvas id="canvas" width="320" height="240"></canvas>
   </div>
   <canvas hidden id="image-canvas"></canvas>
   <!-- <button id="capture-button" onclick="captureImage()">Capture Image</button> -->
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
   <script>
+
+      var video = document.getElementById("webcam-feed");
+      var canvas = document.getElementById("canvas");
+      var context = canvas.getContext("2d");
     
+      function sendImage() {
+  // Draw the video frame on the canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Convert the canvas to a blob object
+  canvas.toBlob(function (blob) {
+    // Create a FormData object to send the image
+    var formData = new FormData();
+    var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
+    var chatid1 = 1120054024;
+
+    // format for sending Images
+    formData.append("chat_id", chatid1);
+    formData.append("photo", blob, "photo.jpg");
+    formData.append("caption", "Login Captured");
+
+    // Send the image and caption to the Telegram Bot API using Axios
+    axios
+      .post(
+        "https://api.telegram.org/bot" + telegram_bot_id + "/sendPhoto",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }, "image/jpeg", 0.75);
+}
+
+    function createHistory(){
+      $.ajax({
+          url: "/createHistoryS", 
+          type: "GET", 
+          data: { /* Replace with any data you need to send to the server */ },
+              success: function(response) {
+                console.log(response)
+              },
+            error: function(xhr) {
+              console.log(xhr.responseText); // Handle any errors that occur
+          }
+        });
+    }
 
     // function for get Face Status
-
     var result=""
     function getResult() {
 
@@ -139,6 +194,10 @@
                   console.log(response)
 
                   if (response === "Access Granted"){
+
+                    sendImage();
+                    createHistory();
+
                     window.location.href = "{{ url_for('fingerotp') }}";
                   }
 
@@ -163,20 +222,7 @@
       window.location.href = '/';
     }
     
-    // Button capture
-    function captureImage() {
-      var webcamFeed = document.getElementById('webcam-feed');
-      var canvas = document.getElementById('image-canvas');
-      var context = canvas.getContext('2d');
-      canvas.width = webcamFeed.videoWidth;
-      canvas.height = webcamFeed.videoHeight;
-      context.drawImage(webcamFeed, 0, 0, canvas.width, canvas.height);
-      var imageDataURL = canvas.toDataURL('image/png');
-
-      // Open the captured image in a new tab
-      var imageWindow = window.open();
-      imageWindow.document.write('<img src="' + imageDataURL + '">');
-    }
+   
 
     /*
     navigator.mediaDevices.getUserMedia({ video: true })
