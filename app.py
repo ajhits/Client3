@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, session
-from Database.database import createRegister,createHistory
+from Database.database import createRegister,createHistory,deleteRegistered,readHistory,deleteHistory
 
 import cv2
 import time
@@ -206,7 +206,8 @@ def cctv_feed():
 # ------------------- Historic Data
 @app.route('/admin/Historic')
 def historic():
-    return render_template('Admin/historic.html')
+    result=readHistory()
+    return render_template('Admin/historic.html',data=result)
 
 # ------------------- Register
 @app.route('/admin/register')
@@ -392,11 +393,23 @@ def facialTraining():
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ Database API
 
-# ********************* API for Facial Register status
+# ********************* API for create History
 @app.route('/createHistoryS', methods=['GET'])
 def createHistoryS():
     CHCH = createHistory(name=Name)
     return jsonify({"message":CHCH})
+
+# ********************* API for delete History
+@app.route('/deleteHistoryS', methods=['GET'])
+def deleteHistoryS():
+    dele = deleteHistory()
+    return jsonify(dele)
+
+# ********************* API for delete Guest List
+@app.route('/deleteGuest', methods=['GET'])
+def deleteGuest():
+    result = deleteRegistered()
+    return jsonify(result)
 
 
 

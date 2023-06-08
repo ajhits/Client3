@@ -55,21 +55,27 @@
 
       <!-- Main -->
       <div class="wrapper style1">
-        <button id="delete-button">DELETE VISITOR INFO</button>
+
+        <button id="delete-button" onclick="deleteGuest()">DELETE VISITOR INFO</button>
+
+        <button id="delete-button" onclick="deleteHistory()">DELETE ALL HISTORY</button>
         <article id="main">
           <table>
             <tr bgcolor="grey">
-              <th width="500">Action</th>
-              <th width="500">Date and Time</th>
+              <th width="500">Name</th>
+              <th width="500">Date</th>
+              <th width="500">Time</th>
             </tr>
+
+            {% for row in data %}
             <tr bgcolor="lightgrey" align="center">
-              <td>Access Granted</td>
-              <td>2023-06-08 9:00PM</td>
+              <td>{{ row[1] }}</td>
+              <td>{{row[3]}}</td>
+              <td>{{row[2]}}</td>
+ 
             </tr>
-            <tr bgcolor="lightgrey" align="center">
-              <td>Access Granted</td>
-              <td>2023-06-08 9:00PM</td>
-            </tr>
+            {% endfor %}
+
           </table>
         </article>
       </div>
@@ -83,6 +89,42 @@
       <script src="../../static/Admin/assets/js/breakpoints.min.js"></script>
       <script src="../../static/Admin/assets/js/util.js"></script>
       <script src="../../static/Admin/assets/js/main.js"></script>
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+      <script>
+        function deleteGuest(){
+          $.ajax({
+          url: "/deleteGuest", 
+          type: "GET", 
+          data: { /* Replace with any data you need to send to the server */ },
+              success: function(response) {
+                alert(response)
+                console.log(response)
+              },
+            error: function(xhr) {
+              console.log(xhr.responseText); // Handle any errors that occur
+          }
+        });
+        }
+
+        function deleteHistory(){
+          $.ajax({
+          url: "/deleteHistoryS", 
+          type: "GET", 
+          data: { /* Replace with any data you need to send to the server */ },
+              success: function(response) {
+                alert(response)
+                window.location.reload()
+                console.log(response)
+              },
+            error: function(xhr) {
+              console.log(xhr.responseText); // Handle any errors that occur
+          }
+        });
+        }
+
+      </script>
     </div>
   </body>
 </html>

@@ -36,33 +36,7 @@ def connection():
         return None
 
     
-# def __connectionCheck():
-
-#     try:
-
-#     # Test connection
-#         cursor.execute("SELECT VERSION()")
-#         result = cursor.fetchone()
-
-#         if result:
-#             print("connected to database")
-#             print("MySQL Server version:", result[0])
-#         else:
-#             print("Connection failed!")
-
-#         # Closing the connection
-#         # cursor.close()
-#         # data.close()
-        
-#         return cursor
-
-#     except mysql.connector.Error as error:
-#         print("Error while connecting to MySQL:", error)
-
-
-# __connection()
 # create data in Registerede table
-
 def createRegister(name=None,type=None):
     result = ""
     try:
@@ -137,7 +111,37 @@ def createHistory(name=None):
     
     return result
 
-# Read data from History table
+# Read data from registere table
+def readRegistered():
+    try:
+        conn = connection()
+        cursor = conn.cursor()
+
+        # Select all rows from the HISTORY table
+        select_query = "SELECT * FROM `registered` WHERE type = 'Guest'"
+        cursor.execute(select_query)
+
+        # Fetch all rows from the result set
+        rows = cursor.fetchall()
+
+        # Convert rows to array
+        data_list = []
+        for row in rows:
+            row_array = list(row)
+            data_list.append(row_array)
+
+
+        cursor.close()
+        conn.close()
+
+        # Return the JSON response
+        return data_list
+
+    except mysql.connector.Error as err:
+        print("Error:", err)
+        return None
+
+# Read data from history table
 def readHistory():
     try:
         conn = connection()
@@ -156,14 +160,12 @@ def readHistory():
             row_array = list(row)
             data_list.append(row_array)
 
-        # Convert array to JSON
-        data_json = json.dumps(data_list)
 
         cursor.close()
         conn.close()
 
         # Return the JSON response
-        return data_list
+        return rows
 
     except mysql.connector.Error as err:
         print("Error:", err)
@@ -197,7 +199,7 @@ def updateHistory(ID=None,Images=None, new_name=None, new_time_in=None, new_date
 
 
 # delete data in History table
-def deleteHistory(ID):
+def deleteRegistered():
     
     try:
 
@@ -205,30 +207,58 @@ def deleteHistory(ID):
         cursor = conn.cursor()
 
         # Delete the specified record from the HISTORY table
-        delete_query = "DELETE FROM HISTORY WHERE ID = %s"
-        query = (ID,)
-        cursor.execute(delete_query, query)
+        delete_query = "DELETE FROM `registered` WHERE type = 'Guest'"
+
+        cursor.execute(delete_query)
         conn.commit()
 
         if cursor.rowcount > 0:
+            cursor.close()
+            conn.close()
             print("Data deleted successfully!")
+            return "Data deleted successfully!"
         else:
+            cursor.close()
+            conn.close()
             print("No matching record found.")
+            return "No matching record found."
 
     except mysql.connector.Error as err:
         print("Error:", err)
 
-    # Close the cursor and connection
-    cursor.close()
-    conn.close()
+        cursor.close()
+        conn.close()
+        return err
 
+    # Close the cursor and connection
+ 
+# Delete data in the HISTORY table
+def deleteHistory():
+    try:
+        conn = connection()
+        cursor = conn.cursor()
+
+        # Delete all records from the HISTORY table
+        delete_query = "DELETE FROM HISTORY"
+
+        cursor.execute(delete_query)
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        print("Data deleted successfully!")
+        return "Data deleted successfully!"
+    except mysql.connector.Error as err:
+        print("Error:", err)
+        return str(err)
 
 # createHistory(
 #     name="Hello Friend"
 # )
 
 # history_data= readHistory()
-# print(history_data)
+# print(readHistory())
 
 
 # updateHistory(
@@ -239,9 +269,11 @@ def deleteHistory(ID):
 #     new_time_in="6:30"
 # )
 
-# deleteHistory(7)
+# deleteRegistered()
 
 # createRegister(name="AJ",type="Family")
+
+# deleteHistory()
 
 
 

@@ -2,7 +2,8 @@
 <html>
 <head>
   <title>Webcam Feed</title>
-
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <style>
     body {
       display: flex;
@@ -15,23 +16,22 @@
     }
 
     #webcam-container {
-      position: relative;
-      width: 700px;
-      height: 700px;
-      border: 1px solid #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
+     position: relative;
+     width: 700px;
+     height: 700px;
+     border: 1px solid #ccc;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     overflow: hidden;
+}
 
     #webcam-feed {
-
       width: 100%;
       height: 100%;
       object-fit: cover;
-
     }
+
     #facial-login {
       position: absolute;
       left: 100px;
@@ -59,6 +59,7 @@
       align-items: center;
       cursor: pointer;
     }
+
     #back-button button {
       font-family: Segoe, Arial, sans-serif;
       font-size: 18px;
@@ -81,12 +82,6 @@
       left: 50%;
       transform: translateX(-50%);
     }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-    }
-
     .item {
       background-color: lightblue;
       padding: 10px;
@@ -94,77 +89,32 @@
     }
     
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  
 </head>
 <body>
+  <h1 id="facial-login">Facial Login</h1>
+
+  <div id="back-button" style="text-decoration: no;">
+    <button onclick="goBack()">Cancel</button>
+  </div>
+
+  <p style="position: absolute;left: 100px; top: 60%; color: white; font-size: 18px; padding-top: 29px;" id="result">Status: </p>
+
+  <div></div>
+
+  <div id="webcam-container">
+    <div id="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+    <img id="webcam-feed" src="{{ url_for('video_feed') }}" width="320" height="240"/>
+    <canvas id="canvas" width="320" height="240"></canvas>
+  </div>
+  <button id="capture" onclick="capture()">Capture</button>
 
   
 
-  <h1 id="facial-login">Facial Login</h1>
-
-    <div id="back-button" style="text-decoration: no;">
-      <button onclick="goBack()">Cancel</button>
-    
-  </div>
-  <p style="position: absolute;left: 100px; top: 60%; color: white; font-size: 18px; padding-top: 29px; " id="result">Status: </p>
-
-  <div>
-
-  </div>
-
-  <div id="webcam-container">
-
-    
-    <img id="webcam-feed" src="{{ url_for('video_feed') }}" />
-    <canvas id="canvas" width="320" height="240"></canvas>
-  </div>
-  <canvas hidden id="image-canvas"></canvas>
-  <!-- <button id="capture-button" onclick="captureImage()">Capture Image</button> -->
-
 
   <script>
-
-      var video = document.getElementById("webcam-feed");
-      var canvas = document.getElementById("canvas");
-      var context = canvas.getContext("2d");
-    
-      function sendImage() {
-  // Draw the video frame on the canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // Convert the canvas to a blob object
-  canvas.toBlob(function (blob) {
-    // Create a FormData object to send the image
-    var formData = new FormData();
-    var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
-    var chatid1 = 1120054024;
-
-    // format for sending Images
-    formData.append("chat_id", chatid1);
-    formData.append("photo", blob, "photo.jpg");
-    formData.append("caption", "Login Captured");
-
-    // Send the image and caption to the Telegram Bot API using Axios
-    axios
-      .post(
-        "https://api.telegram.org/bot" + telegram_bot_id + "/sendPhoto",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, "image/jpeg", 0.75);
-}
-
     function createHistory(){
       $.ajax({
           url: "/createHistoryS", 
@@ -194,18 +144,17 @@
                   console.log(response)
 
                   if (response === "Access Granted"){
-
-                    sendImage();
+                
                     createHistory();
 
-                    window.location.href = "{{ url_for('fingerotp') }}";
+                    //window.location.href = "{{ url_for('fingerotp') }}";
                   }
 
                   if (response === "Access Denied"){
 
                     // SEND TELEGRAM NOTIFICATION
 
-                    window.location.href = "{{ url_for('index') }}";
+                    //window.location.href = "{{ url_for('index') }}";
                   }
 
                   //checkCapture(); //call this function in order to run routing
@@ -215,28 +164,11 @@
           }
         });
     }
-
-
+    
     // go back to main menu
     function goBack() {
       window.location.href = '/';
     }
-    
-   
-
-    /*
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(function (stream) {
-        var webcamFeed = document.getElementById('webcam-feed');
-        if ('srcObject' in webcamFeed) {
-          webcamFeed.srcObject = stream;
-        } else {
-          webcamFeed.src = window.URL.createObjectURL(stream);
-        }
-      })
-      .catch(function (error) {
-        console.log('Error accessing webcam:', error);
-      }); */
       
       var intervalId = setInterval(function(){
 
@@ -244,6 +176,50 @@
         getResult();
       },2000);
 
+  </script>
+  <script>
+    var video = document.getElementById("video-stream");
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    
+    // capture images
+    captureBtn.addEventListener("click", function () {
+      // Draw the video frame on the canvas
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert the canvas to a blob object
+      canvas.toBlob(function (blob) {
+        // Create a FormData object to send the image
+        var formData = new FormData();
+        var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
+        var chatid1 = 1120054024;
+
+        // format for sending Images
+        formData.append("chat_id", chatid1);
+        formData.append("photo", blob, "photo.jpg");
+        formData.append("caption", "Captured Images");
+
+        // Send the image and caption to the Telegram Bot API using Axios
+        axios
+          .post(
+            "https://api.telegram.org/bot" +
+              telegram_bot_id +
+              "/sendPhoto",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          )
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }, "image/jpeg", 0.75);
+    });
   </script>
 </body>
 </html>
