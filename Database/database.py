@@ -115,70 +115,77 @@ def readHistory():
         # Fetch all rows from the result set
         rows = cursor.fetchall()
 
-        # Define the column names
-        column_names = [desc[0] for desc in cursor.description]
-
+        # Convert rows to array
         data_list = []
         for row in rows:
-            # Create a dictionary with column names as keys and row values as values
-            row_data = dict(zip(column_names, row))
-            
-            # Add the dictionary to the list
-            data_list.append(row_data)
+            row_array = list(row)
+            data_list.append(row_array)
+
+        # Convert array to JSON
+        data_json = json.dumps(data_list)
 
         cursor.close()
         conn.close()
 
-        return json.dumps(data_list)
+        # Return the JSON response
+        return data_list
 
     except mysql.connector.Error as err:
         print("Error:", err)
         return None
 
 
+
 # # update data in History table
-# def updateHistory(ID=None,Images=None, new_name=None, new_time_in=None, new_date=None):
-#     try:
-#         # Update the specified record in the HISTORY table
-#         update_query = "UPDATE HISTORY SET person = %s, name = %s, time = %s, date = %s WHERE ID = %s"
-#         query = (Images,new_name, new_time_in, new_date, ID)
-#         cursor.execute(update_query, query)
-#         data.commit()
+def updateHistory(ID=None,Images=None, new_name=None, new_time_in=None, new_date=None):
+    try:
+        conn = connection()
+        cursor = conn.cursor()
 
-#         if cursor.rowcount > 0:
-#             print("Data updated successfully!")
-#         else:
-#             print("No matching record found.")
+        # Update the specified record in the HISTORY table
+        update_query = "UPDATE HISTORY SET person = %s, name = %s, time = %s, date = %s WHERE ID = %s"
+        query = (Images,new_name, new_time_in, new_date, ID)
+        cursor.execute(update_query, query)
+        conn.commit()
 
-#     except mysql.connector.Error as err:
-#         print("Error:", err)
+        if cursor.rowcount > 0:
+            print("Data updated successfully!")
+        else:
+            print("No matching record found.")
 
-#     # Close the cursor and connection
-#     cursor.close()
-#     data.close()
+    except mysql.connector.Error as err:
+        print("Error:", err)
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
 
 
-# # delete data in History table
-# def deleteHistory(ID):
+# delete data in History table
+def deleteHistory(ID):
     
-#     try:
-#         # Delete the specified record from the HISTORY table
-#         delete_query = "DELETE FROM HISTORY WHERE ID = %s"
-#         query = (ID,)
-#         cursor.execute(delete_query, query)
-#         data.commit()
+    try:
 
-#         if cursor.rowcount > 0:
-#             print("Data deleted successfully!")
-#         else:
-#             print("No matching record found.")
+        conn = connection()
+        cursor = conn.cursor()
 
-#     except mysql.connector.Error as err:
-#         print("Error:", err)
+        # Delete the specified record from the HISTORY table
+        delete_query = "DELETE FROM HISTORY WHERE ID = %s"
+        query = (ID,)
+        cursor.execute(delete_query, query)
+        conn.commit()
 
-#     # Close the cursor and connection
-#     cursor.close()
-#     data.close()
+        if cursor.rowcount > 0:
+            print("Data deleted successfully!")
+        else:
+            print("No matching record found.")
+
+    except mysql.connector.Error as err:
+        print("Error:", err)
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
 
 
 # createHistory(
@@ -193,13 +200,13 @@ def readHistory():
 
 
 # updateHistory(
-#     ID=1,
-#     Images="chek check",
+#     ID=3,
+#     Images="chek ssscheck",
 #     new_name="Art Lisboa",
 #     new_date="june 24 2023",
 #     new_time_in="6:30"
 # )
 
-# deleteHistory(1)
+deleteHistory(7)
 
 

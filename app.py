@@ -24,8 +24,17 @@ def CREATE():
 @app.route('/readHistory', methods=['GET'])
 def READ():
     result = readHistory()
+    # print(result[0].ID)
+
     return jsonify(result)
 
+# READ from a HIstory
+@app.route('/updateHistory', methods=['GET'])
+def READ():
+    result = readHistory()
+    # print(result[0].ID)
+
+    return jsonify(result)
 
 
 if __name__ == '__main__':
