@@ -8,6 +8,26 @@
 		<link rel="stylesheet" href="../../static/Admin/assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="../../static/Admin/assets/css/noscript.css" /></noscript>
 	</head>
+	<style>
+		.container {
+			display: flex; /* Use flexbox for centering the contents */
+			flex-direction: column; /* Stack elements vertically */
+			align-items: center; /* Center the contents horizontally */
+		}
+
+		#video-stream {
+			width: 100%; /* Set the width to 100% */
+			max-width: 640px; /* Set the maximum width for larger screens */
+			height: auto; /* Set the height to auto to maintain aspect ratio */
+			border: 1px solid #ccc;
+			margin: 0 auto; /* Center the video feed horizontally */
+		}
+
+		#capture-btn {
+			display: block; /* Make the button a block element */
+			margin: 1rem auto; /* Center the button horizontally with some top margin */
+		}
+	</style>
 	<body class="left-sidebar is-preload">
 		<div id="page-wrapper">
 
@@ -36,13 +56,10 @@
 			<!-- Main -->
 			<div class="wrapper style1">
 				<div class="container">
-					<div class="row gtr-200">
-						<div class="col-8 col-12-mobile" id="content">
-							<article id="main">
-							HELLO
-							</article>
-						</div>
-					</div>
+									<h1>CCTV FEED</h1>
+									<img id="video-stream" src="{{ url_for('cctv_feed') }}" width="320" height="240">
+							  
+									<button id="capture-btn" onclick="capture()">Capture</button>
 				</div>
 			</div>
 							
@@ -50,6 +67,21 @@
 		
 
 		<!-- Scripts -->
+		<script>
+			function capture() {
+			  var video = document.getElementById('video-stream');
+			  var canvas = document.createElement('canvas');
+			  var context = canvas.getContext('2d');
+			  canvas.width = video.videoWidth;
+			  canvas.height = video.videoHeight;
+			  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			  var image = canvas.toDataURL('image/png');
+			  var link = document.createElement('a');
+			  link.href = image;
+			  link.download = 'snapshot.png';
+			  link.click();
+			}
+		  </script>
 			<script src="../../static/Admin/assets/js/jquery.min.js"></script>
 			<script src="../../static/Admin/assets/js/jquery.dropotron.min.js"></script>
 			<script src="../../static/Admin/assets/js/jquery.scrolly.min.js"></script>

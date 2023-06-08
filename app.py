@@ -1,4 +1,5 @@
 from flask import Flask, render_template, session
+from flask import Flask, render_template, Response
 import cv2
 import time
 import os
@@ -9,6 +10,10 @@ import time
 
 OTP_EXPIRATION_SECONDS = 60
 
+cctv = cv2.VideoCapture('rtsp://admin:REEBullets007@192.168.254.141/live/ch1')
+# Set camera resolution
+cctv.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+cctv.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 from flask import Flask, render_template,Response,jsonify,request,redirect,url_for
 # from Jojo_loRecognition.Face_Recognition import Face_Recognition as Jolo
 
@@ -165,6 +170,22 @@ def admin():
 @app.route('/admin/Controls')
 def control():
     return render_template('Admin/controls.html')
+#CCTV
+def generate_frames():
+    while True:
+        success, frame = cctv.read()  # Read the video stream
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # Generate frame bytes for streaming
+
+@app.route('/cctv_feed')
+def cctv_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')  # Stream the frames
+
 
 # ------------------- Historic Data
 @app.route('/admin/Historic')
@@ -208,6 +229,9 @@ def submit_family():
 @app.route('/admin/Name_Guest')
 def nameGuest():
     return render_template('Admin/guest-name-reg.html')
+@app.route('/admin/cam')
+def cam():
+    return render_template('Admin/cam.html')
 
 # ------------------- Finger Register
 @app.route('/admin/Finger_register')
