@@ -15,7 +15,7 @@ cctv = cv2.VideoCapture('rtsp://admin:REEBullets007@192.168.254.141/live/ch1')
 cctv.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 cctv.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 from flask import Flask, render_template,Response,jsonify,request,redirect,url_for
-from Jojo_loRecognition.Face_Recognition import Face_Recognition as Jolo
+#from Jojo_loRecognition.Face_Recognition import Face_Recognition as Jolo
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'

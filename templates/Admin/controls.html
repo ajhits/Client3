@@ -1,95 +1,125 @@
 <!DOCTYPE HTML>
-
 <html>
-	<head>
-		<title>Admin</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="../../static/Admin/assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="../../static/Admin/assets/css/noscript.css" /></noscript>
-	</head>
-	<style>
-		.container {
-			display: flex; /* Use flexbox for centering the contents */
-			flex-direction: column; /* Stack elements vertically */
-			align-items: center; /* Center the contents horizontally */
-		}
+  <head>
+    <title>Admin</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../../static/Admin/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../../static/Admin/assets/css/noscript.css" /></noscript>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <style>
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-		#video-stream {
-			width: 100%; /* Set the width to 100% */
-			max-width: 640px; /* Set the maximum width for larger screens */
-			height: auto; /* Set the height to auto to maintain aspect ratio */
-			border: 1px solid #ccc;
-			margin: 0 auto; /* Center the video feed horizontally */
-		}
+    #video-stream {
+      width: 100%;
+      max-width: 640px;
+      height: auto;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+    }
 
-		#capture-btn {
-			display: block; /* Make the button a block element */
-			margin: 1rem auto; /* Center the button horizontally with some top margin */
-		}
-	</style>
-	<body class="left-sidebar is-preload">
-		<div id="page-wrapper">
+    #capture {
+      display: block;
+      margin: 1rem auto;
+    }
 
-			<!-- Header -->
-				<div id="header">
+    #canvas {
+      display: none;
+    }
+  </style>
+  <body class="left-sidebar is-preload">
+    <div id="page-wrapper">
+      <!-- Header -->
+      <div id="header">
+        <!-- Inner -->
+        <div class="inner">
+          <header>
+            <h1><a href="/" id="logo">Monitor</a></h1>
+          </header>
+        </div>
+        <!-- Nav -->
+        <nav id="nav">
+          <ul>
+            <li><a href="/admin">Dashboard</a></li>
+            <li><a href="/admin/Controls">Monitor</a></li>
+            <li><a href="/admin/Historic">Historic Data</a></li>
+            <li><a href="/admin/register">Register</a></li>
+          </ul>
+        </nav>
+      </div>
 
-					<!-- Inner -->
-						<div class="inner">
-							<header>
-								<h1><a href="/" id="logo">Controls</a></h1>
-							</header>
-						</div>
+      <!-- Main -->
+      <div class="wrapper style1">
+        <div class="container">
+          <h1>CCTV FEED</h1>
+          <img id="video-stream" src="{{ url_for('cctv_feed') }}" width="320" height="240">
+          <canvas id="canvas" width="320" height="240"></canvas>
 
-					<!-- Nav -->
-						<nav id="nav">
-							<ul>
-								<li><a href="/admin">Dashboard</a></li>
-								<li><a href="/admin/Controls">Controls</a></li>
-								<li><a href="/admin/Historic">Historic Data</a></li>
-								<li><a href="/admin/register">Register</a></li>
-							</ul>
-						</nav>
+          <button id="capture" onclick="capture()">Capture</button>
+        </div>
+      </div>
 
-				</div>
+      <script>
+        var video = document.getElementById("video-stream");
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        var captureBtn = document.getElementById("capture");
 
-			<!-- Main -->
-			<div class="wrapper style1">
-				<div class="container">
-									<h1>CCTV FEED</h1>
-									<img id="video-stream" src="{{ url_for('cctv_feed') }}" width="320" height="240">
-							  
-									<button id="capture-btn" onclick="capture()">Capture</button>
-				</div>
-			</div>
-							
+        // capture images
+        captureBtn.addEventListener("click", function () {
+          // Draw the video frame on the canvas
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-		
+          // Convert the canvas to a blob object
+          canvas.toBlob(function (blob) {
+            // Create a FormData object to send the image
+            var formData = new FormData();
+            var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
+            var chatid1 = 1120054024;
 
-		<!-- Scripts -->
-		<script>
-			function capture() {
-			  var video = document.getElementById('video-stream');
-			  var canvas = document.createElement('canvas');
-			  var context = canvas.getContext('2d');
-			  canvas.width = video.videoWidth;
-			  canvas.height = video.videoHeight;
-			  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-			  var image = canvas.toDataURL('image/png');
-			  var link = document.createElement('a');
-			  link.href = image;
-			  link.download = 'snapshot.png';
-			  link.click();
-			}
-		  </script>
-			<script src="../../static/Admin/assets/js/jquery.min.js"></script>
-			<script src="../../static/Admin/assets/js/jquery.dropotron.min.js"></script>
-			<script src="../../static/Admin/assets/js/jquery.scrolly.min.js"></script>
-			<script src="../../static/Admin/assets/js/jquery.scrollex.min.js"></script>
-			<script src="../../static/Admin/assets/js/browser.min.js"></script>
-			<script src="../../static/Admin/assets/js/breakpoints.min.js"></script>
-			<script src="../../static/Admin/assets/js/util.js"></script>
-			<script src="../../static/Admin/assets/js/main.js"></script>
+            // format for sending Images
+            formData.append("chat_id", chatid1);
+            formData.append("photo", blob, "photo.jpg");
+            formData.append("caption", "Captured Images");
 
-	</body>
+            // Send the image and caption to the Telegram Bot API using Axios
+            axios
+              .post(
+                "https://api.telegram.org/bot" +
+                  telegram_bot_id +
+                  "/sendPhoto",
+                formData,
+                {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                }
+              )
+              .then(function (response) {
+                console.log(response);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+          }, "image/jpeg", 0.75);
+        });
+      </script>
+
+      <!-- Scripts -->
+      <script src="../../static/Admin/assets/js/jquery.min.js"></script>
+      <script src="../../static/Admin/assets/js/jquery.dropotron.min.js"></script>
+      <script src="../../static/Admin/assets/js/jquery.scrolly.min.js"></script>
+      <script src="../../static/Admin/assets/js/jquery.scrollex.min.js"></script>
+      <script src="../../static/Admin/assets/js/browser.min.js"></script>
+      <script src="../../static/Admin/assets/js/breakpoints.min.js"></script>
+      <script src="../../static/Admin/assets/js/util.js"></script>
+      <script src="../../static/Admin/assets/js/main.js"></script>
+    </div>
+  </body>
 </html>
