@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hikvision IP Camera Stream</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      h1 {
+        margin-bottom: 20px;
+      }
+      #video-stream {
+        width: 640px;
+        height: 480px;
+        border: 1px solid #ccc;
+      }
+      #capture-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+    <script>
+      function capture() {
+        var video = document.getElementById('video-stream');
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        var image = canvas.toDataURL('image/png');
+        var link = document.createElement('a');
+        link.href = image;
+        link.download = 'snapshot.png';
+        link.click();
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Hikvision IP Camera Stream</h1>
+      <img id="video-stream" src="{{ url_for('video_feed') }}" width="320" height="240">
+
+      <button id="capture-btn" onclick="capture()">Capture</button>
+    </div>
+  </body>
+</html>
