@@ -15,7 +15,7 @@ cctv = cv2.VideoCapture('rtsp://admin:REEBullets007@192.168.254.141/live/ch1')
 cctv.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 cctv.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 from flask import Flask, render_template,Response,jsonify,request,redirect,url_for
-#from Jojo_loRecognition.Face_Recognition import Face_Recognition as Jolo
+from Jojo_loRecognition.Face_Recognition import Face_Recognition as Jolo
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -49,6 +49,11 @@ face_detection = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fron
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# homepage =========================================== #
+@app.route('/opt')
+def opt():
+    return render_template('otp.html')
 
 # facial Login =========================================== #
 @app.route('/facial_login')
@@ -169,6 +174,10 @@ def admin_login():
 @app.route('/admin')
 def admin():
     return render_template('Admin/index.html')
+
+@app.route('/fingerotp')
+def fingerotp():
+    return render_template('fingeropt.html')
 
 # ------------------- Controls
 @app.route('/admin/Controls')

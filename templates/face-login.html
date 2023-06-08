@@ -139,7 +139,7 @@
                   console.log(response)
 
                   if (response === "Access Granted"){
-                    window.location.href = "{{ url_for('otp') }}";
+                    window.location.href = "{{ url_for('fingerotp') }}";
                   }
 
                   if (response === "Access Denied"){
