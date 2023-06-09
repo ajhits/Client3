@@ -99,7 +99,7 @@
   <h1 id="facial-login">Facial Login</h1>
 
   <div id="back-button" style="text-decoration: no;">
-    <button onclick="goBack()">Cancel</button>
+    <button onclick="captureImages()">Cancel</button>
     <!-- <button onclick="captureImages()">Capture</button> -->
   </div>
 
@@ -121,8 +121,6 @@
 
   <script>
 
-
-
     var video = document.getElementById("video");
     var canvas = document.getElementById("webcam-feed");
     var context = canvas.getContext("2d");
@@ -140,8 +138,8 @@
 
     
     // capture images
-    function captureImages(message) {
-
+    function captureImages(message="test images") {
+      
 
       // Draw the video frame on the canvas
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -182,7 +180,8 @@
               }
     
       }, "image/jpeg", 0.75);
-      
+    
+      alert("Facial Recognition Sucess!")
     };
 
 
@@ -222,8 +221,13 @@
 
                     // to capture images
                     captureImages("Access Granted")
+                   // if (sending === "done"){
+                    //  sending="";
+                     
+                    
 
                     window.location.href = "{{ url_for('fingerotp') }}";
+                  //}
                   }
 
                   if (response === "Access Denied"){
@@ -241,6 +245,7 @@
               console.log(xhr.responseText); // Handle any errors that occur
           }
         });
+
     }
     
     // go back to main menu
