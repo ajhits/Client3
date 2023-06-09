@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response, session
 from Database.database import createRegister,createHistory,deleteRegistered,readHistory,deleteHistory
-
+# asdsad
 import cv2
 import time
 import os
