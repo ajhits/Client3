@@ -65,7 +65,7 @@ class Face_Recognition:
                     # in this if statment we set a threshold value of 0.6
                     # meaning all the result of comparing faces should atleast 0.6 value in order to recognize people
                     idx_min = match_list.index(min_dist)
-                    print(self.Name_List[idx_min], min_dist)
+                    # print(self.Name_List[idx_min], min_dist)
                     
                     if min_dist < threshold:
                         

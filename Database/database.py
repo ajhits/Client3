@@ -1,5 +1,6 @@
 import mysql.connector
 import json
+import shutil
 
 from datetime import datetime
 
@@ -141,6 +142,39 @@ def readRegistered():
         print("Error:", err)
         return None
 
+def __readNameGuest():
+    try:
+        conn = connection()
+        cursor = conn.cursor()
+
+        # Select all rows from the HISTORY table
+        select_query = "SELECT `name` FROM `registered` WHERE type = 'Guest'"
+        cursor.execute(select_query)
+
+        # Fetch all rows from the result set
+        rows = cursor.fetchall()
+
+        # Convert rows to array
+        data_list = []
+        for row in rows:
+            data_list.append(row[0])
+            
+            folder_path = "Jojo_loRecognition/Registered-Faces/" + row[0]  # Replace `row[0]` with the specific folder name
+
+            # Delete the folder
+            shutil.rmtree(folder_path)
+            print(row)
+
+        cursor.close()
+        conn.close()
+
+        # Return the JSON response
+        return data_list
+
+    except mysql.connector.Error as err:
+        print("Error:", err)
+        return None   
+
 # Read data from history table
 def readHistory():
     try:
@@ -206,6 +240,9 @@ def deleteRegistered():
         conn = connection()
         cursor = conn.cursor()
 
+        # delete folder first
+        __readNameGuest()
+        
         # Delete the specified record from the HISTORY table
         delete_query = "DELETE FROM `registered` WHERE type = 'Guest'"
 

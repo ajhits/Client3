@@ -39,7 +39,7 @@
         <!-- Inner -->
         <div class="inner">
           <header>
-            <h1><a href="index.html" id="logo">Historic Data</a></h1>
+            <h1><a href="/admin/Historic" id="logo">Historic Data</a></h1>
           </header>
         </div>
         <!-- Nav -->
@@ -100,7 +100,9 @@
           data: { /* Replace with any data you need to send to the server */ },
               success: function(response) {
                 alert(response)
-                console.log(response)
+                if (response === "Data deleted successfully!"){
+                  window.location.href = "{{ url_for('Training') }}";
+                }
               },
             error: function(xhr) {
               console.log(xhr.responseText); // Handle any errors that occur

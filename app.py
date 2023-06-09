@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response, session
 from Database.database import createRegister,createHistory,deleteRegistered,readHistory,deleteHistory
-# asdsad
+
 import cv2
 import time
 import os
@@ -15,6 +15,7 @@ cctv = cv2.VideoCapture('rtsp://admin:REEBullets007@192.168.254.141/live/ch1')
 # Set camera resolution
 cctv.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 cctv.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+
 from flask import Flask, render_template,Response,jsonify,request,redirect,url_for
 from Jojo_loRecognition.Face_Recognition import Face_Recognition as Jolo
 
@@ -42,7 +43,7 @@ def otp():
         return render_template('otp.html', otp=session['otp'], remaining_time=int(remaining_time))
         
 # load a camera,face detection
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0)
 face_detection = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 

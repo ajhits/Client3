@@ -24,7 +24,7 @@
 							<footer>
 								<a href="#banner" class="button circled scrolly">Lock</a>
 								<a href="#banner" class="button circled scrolly">Unlock</a>
-								<a href="#banner" class="button circled scrolly">Alarm</a>
+								<a href="#banner" onclick="alarm()" class="button circled scrolly">Alarm</a>
 							</footer>
 						</div>
 
@@ -51,6 +51,52 @@
 			<script src="s../../tatic/Admin/assets/js/breakpoints.min.js"></script>
 			<script src="../../static/Admin/assets/js/util.js"></script>
 			<script src="../../static/Admin/assets/js/main.js"></script>
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+			<script>
+
+				// Telegram
+				var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
+
+				//chat id
+				var FranzFries = 1246068387; 
+				var CarlFelix = 1120054024; 
+				var HelloFriend = 5234992922; 
+				
+				// Array of chat IDs
+				var chatIds = [
+					FranzFries, 
+					CarlFelix, 
+					HelloFriend
+				]; 
+
+				function alarm(){
+
+					// send alarm
+					chatIds.forEach(function (chatId) {
+						var settings = {
+							"async": true,
+							"crossDomain": true,
+							"url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json",
+								"cache-control": "no-cache"
+							},
+							"data": JSON.stringify({
+								"chat_id": chatId,
+								"text": "Alarm system has been Triggered!"
+							})
+						};
+			
+			
+						$.ajax(settings).done(function (response) {
+							console.log(response);
+						});
+					});
+				}
+
+			</script>
 
 	</body>
 </html>

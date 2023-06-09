@@ -81,9 +81,17 @@
 <script>
     // TELEGRAM
     var telegram_bot_id = "6282148904:AAHxV4u5rb5sVrKxvCzCJ2EAVCr4jHq4740";
-      //chat id
-      var chat_id1 = 1246068387; // franzz
-      var chat_id2 = 1120054024; // AJ
+    //chat id
+    var FranzFries = 1246068387; 
+    var CarlFelix = 1120054024; 
+    var HelloFriend = 5234992922; 
+
+    // Array of chat IDs
+    var chatIds = [
+        FranzFries, 
+        CarlFelix, 
+        HelloFriend
+    ]; 
 
 
     var otpExpirationTime = 1 * 50; // OTP expiration time in seconds
@@ -106,7 +114,7 @@
     function disableResendButton() {
         sendButton.disabled = true;
 
-        var remainingTime = 10; // 1 hour in seconds
+        var remainingTime = 30; // 1 hour in seconds
 
         function countdown() {
             var minutes = Math.floor(remainingTime / 10);
@@ -169,55 +177,50 @@
         var otp = generateOTP(6);
         var message = "THE OTP IS " + otp;
 
-        var settings1 = {
-            "async": true,
-            "crossDomain": true,
-            "url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
-            "method": "POST",
-            "headers": {
-                "Content-Type": "application/json",
-                "cache-control": "no-cache"
-            },
-            "data": JSON.stringify({
-                "chat_id": chat_id1,
-                "text": message
-            })
-        };
 
-        var settings2 = {
-            "async": true,
-            "crossDomain": true,
-            "url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
-            "method": "POST",
-            "headers": {
-                "Content-Type": "application/json",
-                "cache-control": "no-cache"
-            },
-            "data": JSON.stringify({
-                "chat_id": chat_id2,
-                "text": message
-            })
-        };
-
-        // Save OTP to sessionStorage with expiration time
+                    // Save OTP to sessionStorage with expiration time
         var expirationTime = new Date().getTime() + (otpExpirationTime * 1000);
         var otpData = {
             otp: otp,
             expirationTime: expirationTime
         };
         sessionStorage.setItem('otp', JSON.stringify(otpData));
-
+        
         attempts++;
-
+        
         disableResendButton();
 
-        $.ajax(settings1).done(function (response) {
-            console.log(response);
+                    
+        chatIds.forEach(function (chatId) {
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "cache-control": "no-cache"
+                },
+                "data": JSON.stringify({
+                    "chat_id": chatId,
+                    "text": message
+                })
+            };
+
+
+            $.ajax(settings).done(function (response) {
+                console.log(response);
+            });
         });
 
+        
+
+  
+
+        /*
         $.ajax(settings2).done(function (response) {
             console.log(response);
-        });
+        }); */
     }
 
     function verifyOTP() {
@@ -241,6 +244,30 @@
                 clearInterval(countdownInterval);
                 document.getElementById("countdown").textContent = "Welcome"; // Change this line to perform the desired action
                 window.location.href="/";
+
+                chatIds.forEach(function (chatId) {
+                    var settings = {
+                        "async": true,
+                        "crossDomain": true,
+                        "url": "https://api.telegram.org/bot" + telegram_bot_id + "/sendMessage",
+                        "method": "POST",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "cache-control": "no-cache"
+                        },
+                        "data": JSON.stringify({
+                            "chat_id": chatId,
+                            "text": "OTP Success!"
+                        })
+                    };
+        
+        
+                    $.ajax(settings).done(function (response) {
+                        console.log(response);
+                    });
+                });
+        
+                
             } else {
                 console.log("OTP has expired");
                 alert("OTP has expired");
